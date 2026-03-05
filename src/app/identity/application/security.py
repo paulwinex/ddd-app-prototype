@@ -9,10 +9,17 @@ from passlib.handlers.bcrypt import bcrypt
 
 from app.core.settings import get_default_settings, Settings
 from app.core.utils.datetime_utils import utcnow
-from app.identity.exceptions import AuthenticationError, TokenError, UnauthenticatedError, AuthorizationError
+from app.identity.exceptions import (
+    AuthenticationError,
+    TokenError,
+    UnauthenticatedError,
+    AuthorizationError,
+)
 import bcrypt
 
-oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/login", auto_error=False
+)
 
 
 class PasswordHasher:
@@ -31,14 +38,13 @@ def get_password_hasher() -> PasswordHasher:
 
 def verify_password(raw_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(
-        password=raw_password.encode('utf-8'),
-        hashed_password=hashed_password.encode('utf-8')
+        password=raw_password.encode("utf-8"), hashed_password=hashed_password.encode("utf-8")
     )
 
 
 def hash_password(raw_password: str) -> str:
-    hashed_password = bcrypt.hashpw(password=raw_password.encode('utf-8'), salt=bcrypt.gensalt())
-    return hashed_password.decode('utf-8')
+    hashed_password = bcrypt.hashpw(password=raw_password.encode("utf-8"), salt=bcrypt.gensalt())
+    return hashed_password.decode("utf-8")
 
 
 def create_auth_token(user_id: str, settings: Settings = None) -> dict[str, Any]:
@@ -181,4 +187,5 @@ def require_role(required_role: str):
         if current_user.get("is_superuser"):
             return True
         raise AuthorizationError(detail=f"Role {required_role} required")
+
     return role_checker

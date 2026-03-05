@@ -25,7 +25,8 @@ def setup_exception_handlers(app: FastAPI) -> None:
         logger.exception(message)
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"detail": message, "type": exc.__class__.__name__})
+            content={"detail": message, "type": exc.__class__.__name__},
+        )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:

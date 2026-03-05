@@ -8,13 +8,13 @@ from app.identity.domain.entities import User
 from app.identity.domain.interfaces import (
     PasswordHasherProtocol,
     UserCommandRepositoryProtocol,
-    UserQueryRepositoryProtocol
+    UserQueryRepositoryProtocol,
 )
 from app.identity.exceptions import AuthorizationError
 from app.identity.infra.dependencies import (
     UserQueryRepoDEP,
     get_user_query_repo,
-    get_user_command_repo
+    get_user_command_repo,
 )
 
 
@@ -25,9 +25,9 @@ async def get_user_query_service(
 
 
 async def get_user_command_service(
-        command_repo: Annotated[UserCommandRepositoryProtocol, Depends(get_user_command_repo)],
-        query_repo: Annotated[UserQueryRepositoryProtocol, Depends(get_user_query_repo)],
-        password_hasher: Annotated[PasswordHasherProtocol, Depends(get_password_hasher)]
+    command_repo: Annotated[UserCommandRepositoryProtocol, Depends(get_user_command_repo)],
+    query_repo: Annotated[UserQueryRepositoryProtocol, Depends(get_user_query_repo)],
+    password_hasher: Annotated[PasswordHasherProtocol, Depends(get_password_hasher)],
 ) -> UserCommandService:
     return UserCommandService(command_repo, query_repo, password_hasher)
 
@@ -56,4 +56,3 @@ async def get_current_active_user(
 
 
 CurrentUserDEP = Annotated[User, Depends(get_current_active_user)]
-

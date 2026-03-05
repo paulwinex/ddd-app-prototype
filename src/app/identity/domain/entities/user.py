@@ -46,7 +46,7 @@ class User:
             self.last_name = last_name
         self.updated_at = utcnow()
 
-    def change_password(self, new_password: str|PasswordVO) -> None:
+    def change_password(self, new_password: str | PasswordVO) -> None:
         if isinstance(new_password, str):
             new_password = PasswordVO(new_password)
         self.password = new_password

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Generic, Any
 
+from pydantic import BaseModel
+
 from app.core.type_aliases import TModelORM
 
 
@@ -50,3 +52,12 @@ class OffsetPaginationResult(Generic[TModelORM]):
             "has_prev": self.has_prev,
         }
 
+
+class OffsetPaginationResultSchema(BaseModel):
+    total: int
+    has_next: bool
+    has_prev: bool
+    limit: int
+    offset: int
+    order_by: str
+    sorting: str

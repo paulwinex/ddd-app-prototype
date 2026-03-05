@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_serializer
 
-from app.core.api.response import PaginatedResponse
+from app.core.infra.pagination import OffsetPaginationResultSchema
 from app.identity.domain.value_objects import UserID, EmailVO
 
 
@@ -17,13 +17,13 @@ class UserResponseDTO(UserDTOBase):
     first_name: str | None = None
     last_name: str | None = None
 
-    @field_serializer('id', when_used='json')
+    @field_serializer("id", when_used="json")
     def serialize_id(self, value: Any) -> str:
         if isinstance(value, UserID):
             return str(value)
         return value
 
-    @field_serializer('email', when_used='json')
+    @field_serializer("email", when_used="json")
     def serialize_email(self, value: Any) -> str:
         if isinstance(value, EmailVO):
             return value.to_py_value()
@@ -69,8 +69,5 @@ class UserPasswordChangeRequestDTO(BaseModel):
     new_password: str = Field(..., min_length=8, max_length=128)
 
 
-class UserListResponseDTO(PaginatedResponse):
+class UserListResponseDTO(OffsetPaginationResultSchema):
     items: list[UserResponseDTO]
-
-
-

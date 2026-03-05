@@ -12,7 +12,7 @@ from sqlalchemy.testing.schema import mapped_column
 class Base(DeclarativeBase):
     __abstract__ = True
     __table_args__ = {"extend_existing": True}
-    id: Mapped[str] = mapped_column(UUID(as_uuid=True),primary_key=True, default=uuid7, index=True)
+    id: Mapped[str] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid7, index=True)
 
     metadata = MetaData(
         naming_convention={
@@ -23,8 +23,8 @@ class Base(DeclarativeBase):
             "pk": "pk_%(table_name)s",
         }
     )
+
     def __repr__(self):
         return f"<{self.__class__.__name__} #{self.id}>"
 
     __str__ = __repr__
-

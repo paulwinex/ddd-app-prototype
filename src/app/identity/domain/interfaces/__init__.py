@@ -3,7 +3,7 @@ from .user_command_repository_protocol import UserCommandRepositoryProtocol
 from .password_hasher_protocol import PasswordHasherProtocol
 
 __all__ = [
-    'UserQueryRepositoryProtocol',
-    'UserCommandRepositoryProtocol',
-    'PasswordHasherProtocol',
+    "UserQueryRepositoryProtocol",
+    "UserCommandRepositoryProtocol",
+    "PasswordHasherProtocol",
 ]

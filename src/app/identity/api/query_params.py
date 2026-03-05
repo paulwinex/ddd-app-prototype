@@ -9,4 +9,3 @@ class UserListQueryParams(BaseModel):
     is_active: Optional[bool] = Query(None, description="Filter by active status")
     is_superuser: Optional[bool] = Query(None, description="Filter by superuser status")
     is_verified: Optional[bool] = Query(None, description="Filter by verified status")
-

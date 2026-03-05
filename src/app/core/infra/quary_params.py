@@ -20,4 +20,3 @@ class SortOrderQueryParams(BaseQueryParams):
 class OffsetPaginateQueryParams(SortOrderQueryParams):
     limit: int = Query(50, ge=1, le=1000, description="Items count limit")
     offset: int = Query(0, ge=0, description="Items offset")
-

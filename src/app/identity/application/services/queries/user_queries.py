@@ -10,7 +10,7 @@ class UserQueryService:
     def __init__(self, query_repo: UserQueryRepositoryProtocol):
         self.query_repo = query_repo
 
-    async def get_user_by_id(self, user_id: str|UserID) -> UserDTO:
+    async def get_user_by_id(self, user_id: str | UserID) -> UserDTO:
         user = await self.query_repo.get_by_id(user_id)
         return UserMapper.to_dto(user)
 
@@ -21,15 +21,13 @@ class UserQueryService:
         return UserMapper.to_dto(user)
 
     async def get_user_list(
-            self,
-            filters: UserListQueryParams,
-            pagination: OffsetPaginateQueryParams
-        ) -> UserListResponseDTO:
+        self, filters: UserListQueryParams, pagination: OffsetPaginateQueryParams
+    ) -> UserListResponseDTO:
         items, total = await self.query_repo.get_list(
             pagination=pagination,
             filters=filters.model_dump(exclude_unset=True),
         )
-        items = [UserMapper.to_dto(user) for user in items] # TODO check direct
+        items = [UserMapper.to_dto(user) for user in items]  # TODO check direct
 
         return UserListResponseDTO(
             items=items,

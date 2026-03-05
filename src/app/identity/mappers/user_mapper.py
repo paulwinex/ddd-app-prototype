@@ -36,7 +36,7 @@ class UserMapper:
         )
 
     @staticmethod
-    def to_dto(entity: User|UserModel) -> UserResponseDTO:
+    def to_dto(entity: User | UserModel) -> UserResponseDTO:
         if isinstance(entity, User):
             return UserResponseDTO(
                 id=str(entity.id),

@@ -54,4 +54,3 @@ class AuditMixin(TimestampMixin):
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
-

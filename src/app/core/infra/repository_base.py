@@ -13,47 +13,38 @@ from app.core.type_aliases import TModelORM, PaginationResult, TDTO, TSchema
 class QueryRepositoryProtocol(Protocol[TModelORM, TDTO]):
     """Protocol for query repositories (read operations)"""
 
-    async def get_by_id(self, id_: str) -> TModelORM:
-        ...
+    async def get_by_id(self, id_: str) -> TModelORM: ...
 
     async def get_list(
         self,
         pagination: OffsetPaginationRequest | None = None,
         filters: dict[str, Any] | None = None,
-    ) -> PaginationResult[TModelORM]:
-        ...
+    ) -> PaginationResult[TModelORM]: ...
 
-    async def count(self, filters: dict[str, Any] | None = None) -> int:
-        ...
+    async def count(self, filters: dict[str, Any] | None = None) -> int: ...
 
-    async def exists(self, id_: str) -> bool:
-        ...
+    async def exists(self, id_: str) -> bool: ...
 
 
 class CommandRepositoryProtocol(Protocol[TDTO]):
     """Protocol for command repositories (write operations)"""
 
-    async def create(self, entity: TDTO) -> str:
-        ...
+    async def create(self, entity: TDTO) -> str: ...
 
-    async def update(self, id_: str, entity: TDTO) -> str:
-        ...
+    async def update(self, id_: str, entity: TDTO) -> str: ...
 
-    async def delete(self, id_: str) -> None:
-        ...
+    async def delete(self, id_: str) -> None: ...
 
-    async def bulk_create(self, entities: list[TDTO]) -> list[str]:
-        ...
+    async def bulk_create(self, entities: list[TDTO]) -> list[str]: ...
 
-    async def bulk_update(self, entities: list[TDTO]) -> list[str]:
-        ...
+    async def bulk_update(self, entities: list[TDTO]) -> list[str]: ...
 
-    async def bulk_delete(self, ids: list[str|UUID]) -> int:
-        ...
+    async def bulk_delete(self, ids: list[str | UUID]) -> int: ...
 
 
 class BaseRepository(ABC, Generic[TModelORM, TDTO]):
     """Base repository with common CRUD operations."""
+
     model_class: type[TModelORM]
 
     def __init__(self, session: AsyncSession):
@@ -97,7 +88,7 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         return stmt
 
     def _apply_ordering(self, stmt: Select, pagination: OffsetPaginationRequest) -> Select:
-        order_field = pagination.order_by or 'id'
+        order_field = pagination.order_by or "id"
         order_column = getattr(self.model_class, order_field, None)
         if pagination.is_desc:
             return stmt.order_by(order_column.desc())
@@ -109,7 +100,7 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         result = await self.session.execute(stmt)
         return result.scalar_one() or 0
 
-    async def get_by_id(self, id_: str|UUID) -> TModelORM:
+    async def get_by_id(self, id_: str | UUID) -> TModelORM:
         stmt = select(self.model_class).where(self.model_class.id == id_)
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()
@@ -132,12 +123,12 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         stmt = stmt.offset(pagination.offset).limit(pagination.limit)
         result = await self.session.execute(stmt)
         models = list(result.scalars().all())
-        return  models, total
+        return models, total
 
     async def count(self, filters: dict[str, Any] | None = None) -> int:
         return await self._count_query(filters)
 
-    async def exists(self, id_: str|UUID) -> bool:
+    async def exists(self, id_: str | UUID) -> bool:
         try:
             await self.get_by_id(id_)
             return True
@@ -151,14 +142,15 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         return model
 
     async def update(self, entity_id: str, data: TSchema) -> None:
-        stmt = (update(self.model_class)
+        stmt = (
+            update(self.model_class)
             .where(self.model_class.id == entity_id)
             .values(**data.model_dump(exclude_unset=True))
         )
         await self.session.execute(stmt)
         await self.session.flush()
 
-    async def delete(self, entity_id: str|UUID) -> None:
+    async def delete(self, entity_id: str | UUID) -> None:
         stmt = delete(self.model_class).where(self.model_class.id == entity_id)
         await self.session.delete(stmt)
 

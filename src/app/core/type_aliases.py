@@ -21,8 +21,7 @@ class SupportsID(Protocol):
 class EntityBase(Protocol):
     id: UUIDv7
 
-    def to_dict(self) -> dict:
-        ...
+    def to_dict(self) -> dict: ...
 
 
 class DtoBase(Protocol):

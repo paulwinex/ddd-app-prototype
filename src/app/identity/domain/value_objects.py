@@ -19,12 +19,13 @@ class EmailVO(ValueObjectBase):
 
     def __post_init__(self) -> None:
         import re
+
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(pattern, self.value):
             raise ValueObjectValidationError("Invalid email format")
 
     @classmethod
-    def create(cls, value: str|EmailStr) -> Self:
+    def create(cls, value: str | EmailStr) -> Self:
         return cls(value=value.lower().strip())
 
     def to_py_value(self) -> str:

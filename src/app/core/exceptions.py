@@ -4,12 +4,13 @@ from http import HTTPStatus
 
 class AppError(Exception):
     """Application Error"""
+
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
     def __init__(
         self,
         detail: str | None = None,
-        status: int|HTTPStatus = None,
+        status: int | HTTPStatus = None,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
     ):
@@ -30,11 +31,13 @@ class AppError(Exception):
 
 class DomainError(AppError):
     """Base domain exception"""
+
     status_code = HTTPStatus.BAD_REQUEST
 
 
 class EntityNotFoundError(DomainError):
     """Entity not found"""
+
     status_code = HTTPStatus.NOT_FOUND
 
 
@@ -44,24 +47,29 @@ class ValueObjectValidationError(DomainError):
 
 class BusinessRuleError(DomainError):
     """Business rule violation error"""
+
     status_code = HTTPStatus.CONFLICT
 
 
 class RepositoryError(AppError):
     """Base repository exception"""
+
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 class NotFoundError(RepositoryError):
     """Entity not found in repository"""
+
     status_code = HTTPStatus.NOT_FOUND
 
 
 class IntegrityError(RepositoryError):
     """Database integrity error"""
+
     status_code = HTTPStatus.CONFLICT
 
 
 class ValidationError(AppError):
     """Validation error"""
+
     status_code = HTTPStatus.BAD_REQUEST

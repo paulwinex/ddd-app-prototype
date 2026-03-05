@@ -1,7 +1,14 @@
-from app.identity.api.auth_schemas import LoginRequestSchema, TokenResponseSchema, RefreshTokenRequestSchema
+from app.identity.api.auth_schemas import (
+    LoginRequestSchema,
+    TokenResponseSchema,
+    RefreshTokenRequestSchema,
+)
 from app.identity.application import security
 from app.identity.domain.entities import User
-from app.identity.domain.interfaces import UserQueryRepositoryProtocol, UserCommandRepositoryProtocol
+from app.identity.domain.interfaces import (
+    UserQueryRepositoryProtocol,
+    UserCommandRepositoryProtocol,
+)
 from app.identity.domain.value_objects import UserID
 from app.identity.dto.user_dto import UserPasswordChangeRequestDTO
 from app.identity.exceptions import TokenError
@@ -48,5 +55,7 @@ class AuthService:
         user = await self.user_query_repo.get_by_id(user_id)
         return UserMapper.to_entity(user)
 
-    async def change_password(self, user_id: str|UserID, payload: UserPasswordChangeRequestDTO) -> None:
+    async def change_password(
+        self, user_id: str | UserID, payload: UserPasswordChangeRequestDTO
+    ) -> None:
         await self.user_command_repo.change_password(user_id, payload)
