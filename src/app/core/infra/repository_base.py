@@ -135,11 +135,11 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         except NotFoundError:
             return False
 
-    async def create(self, payload: TSchema) -> TModelORM:
+    async def create(self, payload: TSchema) -> str:
         model = self.model_class(**payload.model_dump(exclude_unset=True))
         self.session.add(model)
-        await self.session.flush(model)
-        return model
+        await self.session.flush([model])
+        return model.id
 
     async def update(self, entity_id: str, data: TSchema) -> None:
         stmt = (

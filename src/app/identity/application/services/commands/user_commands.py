@@ -14,7 +14,7 @@ from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
 from app.identity.dto.user_dto import (
     UserCreateRequestDTO,
     UserUpdateRequestDTO,
-    UserPasswordChangeRequestDTO,
+    UserPasswordChangeRequestDTO, UserCreateDbDTO,
 )
 from app.identity.mappers.user_mapper import UserMapper
 
@@ -32,24 +32,15 @@ class UserCommandService:
         self.query_repo = query_repo
         self.password_hasher = password_hasher
 
-    # @staticmethod
-    # def create_entity(dto: UserCreateRequestDto, password_hasher) -> User:
-    #     return User(
-    #         id=UserID(),
-    #         email=EmailVO.create(dto.email),
-    #         password=PasswordVO.create_from_raw(dto.password, password_hasher),
-    #         first_name=dto.first_name,
-    #         last_name=dto.last_name,
-    #         is_superuser=dto.is_superuser,
-    #     )
-
     async def create_user(self, payload: UserCreateRequestDTO) -> str:
         exists = await self.query_repo.exists_by_email(str(payload.email))
         if exists:
             raise UserAlreadyExistsError(f"Email already used {payload.email}")
         payload.password = self.password_hasher.hash(payload.password)
         user_entity = User(**payload.model_dump(exclude_unset=True))
-        user_id = await self.command_repo.create(UserMapper.to_dto(user_entity))
+        user_entity.change_password(payload.password)
+        creation_data = UserMapper.to_db_dto(user_entity)
+        user_id = await self.command_repo.create(creation_data)
         return user_id
 
     async def update_user(self, user_id: str | UserID, payload: UserUpdateRequestDTO) -> str:

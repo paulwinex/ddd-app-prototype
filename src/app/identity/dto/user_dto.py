@@ -53,6 +53,15 @@ class UserCreateRequestDTO(BaseModel):
     last_name: str | None = Field(None, max_length=100)
 
 
+class UserCreateDbDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    email: str
+    password_hash: str
+    first_name: str | None = Field(None, max_length=100)
+    last_name: str | None = Field(None, max_length=100)
+
+
 class UserUpdateRequestDTO(UserDTOBase):
     first_name: str | None = Field(None, max_length=100)
     last_name: str | None = Field(None, max_length=100)

@@ -1,6 +1,6 @@
 from app.identity.domain.entities import User
 from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
-from app.identity.dto.user_dto import UserResponseDTO
+from app.identity.dto.user_dto import UserResponseDTO, UserCreateDbDTO
 from app.identity.infra.models import UserModel
 
 
@@ -47,6 +47,15 @@ class UserMapper:
         return UserResponseDTO(
             id=str(entity.id),
             email=entity.email,
+            first_name=entity.first_name,
+            last_name=entity.last_name,
+        )
+
+    @staticmethod
+    def to_db_dto(entity: User) -> UserCreateDbDTO:
+        return UserCreateDbDTO(
+            email=str(entity.email),
+            password_hash=entity.password.to_py_value(),
             first_name=entity.first_name,
             last_name=entity.last_name,
         )

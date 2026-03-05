@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from uuid import uuid7
 
 from app.core.utils.datetime_utils import utcnow
 from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
@@ -7,7 +8,7 @@ from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
 
 @dataclass(kw_only=True)
 class User:
-    id: UserID
+    id: UserID = field(default_factory=uuid7)
     email: EmailVO
     password: PasswordVO
     first_name: str | None = None
