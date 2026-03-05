@@ -9,7 +9,9 @@ from alembic import context
 from app.core.settings import get_default_settings
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_default_settings().DB.dsn)
+db_url = get_default_settings().DB.dsn
+print('USING DB:', db_url)
+config.set_main_option("sqlalchemy.url", db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

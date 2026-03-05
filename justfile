@@ -58,12 +58,40 @@ docker-build:
 [working-directory: 'deploy']
 [group('docker')]
 docker-run:
+    docker compose up
+
+
+[working-directory: 'deploy']
+[group('docker')]
+docker-run-d:
     docker compose up -d
 
 
 # Build and run
 [group('docker')]
 docker-build-run:  docker-build  docker-run
+
+
+# Build and run tests in container
+[working-directory: 'deploy']
+[group('docker')]
+docker-test:
+    docker compose -f compose-testing.yml up --abort-on-container-exit
+#    docker compose -f compose-testing.yml up --build --abort-on-container-exit
+
+
+# Build test image only
+[working-directory: 'deploy']
+[group('docker')]
+docker-test-build:
+    docker compose -f compose-testing.yml build
+
+
+# Stop test containers
+[working-directory: 'deploy']
+[group('docker')]
+docker-test-stop:
+    docker compose -f compose-testing.yml down
 
 
 # Stop containers

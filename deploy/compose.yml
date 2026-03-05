@@ -1,11 +1,12 @@
-#name: "$APP_NAME"
+name: "$APP_NAME"
 
 services:
   app:
-    image: ${APP_NAME}-api:${TAG:-dev}
+    image: ${APP_NAME}-app:${TAG:-dev}
     build:
       context: ..
       dockerfile: deploy/Dockerfile
+      target: production-image
     container_name: "${APP_NAME}-app"
     ports:
       - "${APP_PORT:-8000}:8000"
@@ -21,7 +22,7 @@ services:
 
   db:
     image: postgres:17
-    container_name: "$APP_NAME-db"
+    container_name: "${APP_NAME}-db"
     env_file:
       - ../.env
     environment:

@@ -75,5 +75,6 @@ class Settings(BaseSettings):
 
 
 @cache
-def get_default_settings() -> Settings:
-    return Settings()
+def get_default_settings(**kwargs) -> Settings:
+    return Settings(**kwargs)
+

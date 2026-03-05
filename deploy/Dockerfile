@@ -1,5 +1,7 @@
 FROM python:3.14-slim AS builder
 
+ARG INSTALL_DEV=false
+
 ENV PATH="/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -22,7 +24,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv venv $VIRTUAL_ENV && \
-    uv sync --no-install-project --no-editable
+    if [ "$INSTALL_DEV" = "true" ]; then \
+        uv sync --no-install-project --no-editable; \
+    else \
+        uv sync --no-install-project --no-editable --no-group dev; \
+    fi
 
 COPY ./src /app/src
 
@@ -47,3 +53,25 @@ COPY --link --from=builder /app/src /app/src
 EXPOSE 8000
 RUN chmod +x /app/src/entrypoint-app.sh
 ENTRYPOINT ["/app/src/entrypoint-app.sh"]
+
+FROM python:3.14-slim AS testing-image
+
+ENV TZ=Europe/Moscow
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/venv \
+    PYTHONPATH="/app/src" \
+    TESTING=true
+
+WORKDIR /app/src
+COPY --link --from=builder /venv /venv
+COPY --link --from=builder /app/src /app/src
+
+RUN chmod +x /app/src/entrypoint-testing.sh
+ENTRYPOINT ["/app/src/entrypoint-testing.sh"]
