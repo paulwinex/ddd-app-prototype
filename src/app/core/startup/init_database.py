@@ -2,17 +2,15 @@ import inspect
 
 from loguru import logger
 
-from app.core.infra.base_model import Base
 from app.core.session import db_session
 from app.core.utils.modules import collect_domain_modules
 
 
 async def init_database() -> None:
     #################################################
-    # TODO: delete when migration was added
-    async with db_session._engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created")
+    # async with db_session._engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
+    #     logger.info("Database tables created")
     ################################################
 
     modules = collect_domain_modules("infra/init_db")
