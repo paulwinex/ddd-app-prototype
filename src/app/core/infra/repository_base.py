@@ -6,7 +6,7 @@ from sqlalchemy import Select, select, func, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
-from app.core.infra.pagination import OffsetPaginationResult, OffsetPaginationRequest
+from app.core.infra.pagination import OffsetPaginationRequest
 from app.core.type_aliases import TModelORM, PaginationResult, TDTO, TSchema
 
 

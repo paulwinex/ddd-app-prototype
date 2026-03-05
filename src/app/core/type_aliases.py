@@ -1,7 +1,7 @@
-from typing import TypeVar, Protocol, Any
+from typing import TypeVar, Protocol
 from uuid import UUID
+
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeBase
 
 from app.core.infra.base_model import Base
 
