@@ -76,8 +76,7 @@ docker-build-run:  docker-build  docker-run
 [working-directory: 'deploy']
 [group('docker')]
 docker-test:
-    docker compose -f compose-testing.yml up --abort-on-container-exit
-#    docker compose -f compose-testing.yml up --build --abort-on-container-exit
+    docker compose -f compose-testing.yml up --build --abort-on-container-exit
 
 
 # Build test image only
