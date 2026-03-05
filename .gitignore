@@ -1,36 +1,7 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -51,20 +22,10 @@ coverage.xml
 *.pot
 
 # Environments
-.env
 .venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
 # IDE
 .idea/
-.vscode/
-*.swp
-*.swo
-*~
 
 # mypy
 .mypy_cache/
@@ -77,52 +38,14 @@ dmypy.json
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# poetry
-poetry.lock
-
 # uv
 uv.lock
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath
-*.sage.py
-
-# Spyder
-.spyderproject
-.spyproject
-
-# Rope
-.ropeproject
-
-# mkdocs
-/site
-
-# mypy
-.mypy_cache/
-
-# pytype
-.pytype/
-
-# cython
-*.c
-*.cpp
-*.h
 
 # Data
 *.db
 *.sqlite
 *.sqlite3
 data/
-*.log
 
 # OS
 .DS_Store
@@ -131,6 +54,7 @@ Thumbs.db
 # Docker
 *.pid
 docker-compose.override.yml
+compose.override.yml
 
 # Local configuration
 .local.env
@@ -140,9 +64,10 @@ docker-compose.override.yml
 # Temporary files
 tmp/
 temp/
+_tmp/
 *.tmp
 
 # Logs
 *.log
 logs/
-_tmp/
+
