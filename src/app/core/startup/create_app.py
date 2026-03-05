@@ -6,6 +6,7 @@ from app.core.startup.exception_handlers import setup_exception_handlers
 from app.core.settings import get_default_settings, Settings
 from app.identity.api.v1.user_router import router as user_router
 from app.identity.api.v1.auth_router import router as auth_router
+from app import __version__
 
 
 def create_app(settings: Settings = None) -> FastAPI:
@@ -13,7 +14,7 @@ def create_app(settings: Settings = None) -> FastAPI:
     app = FastAPI(
         title=settings.NAME,
         description="DDD Architecture Prototype with FastAPI",
-        version="0.0.0",
+        version=__version__,
         lifespan=lifespan,
         docs_url="/docs",
         redoc_url="/redoc",
