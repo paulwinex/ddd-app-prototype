@@ -53,7 +53,6 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
         self.session = session
 
     def _apply_filters(self, stmt: Select, filters: dict[str, Any] | None) -> Select:
-        """Apply filters to query statement."""
         if not filters or not self.model_class:
             return stmt
 
