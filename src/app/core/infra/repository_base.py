@@ -152,7 +152,8 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
 
     async def delete(self, entity_id: str | UUID) -> None:
         stmt = delete(self.model_class).where(self.model_class.id == entity_id)
-        await self.session.delete(stmt)
+        await self.session.execute(stmt)
+        await self.session.flush()
 
     async def bulk_create(self, models: list[TModelORM]) -> list[TModelORM]:
         raise NotImplementedError
