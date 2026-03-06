@@ -3,7 +3,7 @@
 DDD Architecture Prototype with FastAPI implementing the example domains.
 
 ```
-DOMAIN/                        # domain root
+DOMAIN_NAME/                   # domain root
 ├── domain/                    # domain layer
 │   ├── entities/              # domain entities
 │   ├── value_objects/         # calue objects
@@ -11,21 +11,16 @@ DOMAIN/                        # domain root
 │   ├── interfaces/            # repository protocols
 │   ├── events/                # domain events
 │   └── exceptions.py          # domain exceptions
-│
-├── dto/                       # data Transfer Objects
-│
-├── mappers/                   # entity-DTO mappers
-│
 ├── application/               # application layer
-│   ├── services/              # use cases
-│   │   ├── commands/          # command handlers
-│   │   └── queries/           # query handlers
-│
+│   ├── dto/                   # data Transfer Objects
+│   ├── mappers/               # entity-DTO mappers
+│   └── services/              # use cases read/write
+│       ├── commands/          # command handlers (create, update, delete)
+│       └── queries/           # query handlers (read only)
 ├── infra/                     # infrastructure layer
 │   ├── models/                # SQLAlchemy ORM models
 │   ├── repositories/          # repository implementations
 │   └── dependencies.py        # DI dependencies
-│
 └── api/                       # API layer
     ├── schemas.py             # Pydantic schemas
     ├── dependencies.py        # API dependencies
@@ -51,14 +46,15 @@ TODO
 
 ### Installation
 
+0. Install `just`
+
+https://github.com/casey/just?tab=readme-ov-file#installation
+
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/paulwinex/ddd-app-prototype.git
 cd celan_arch_prototype
 ```
-
-Install `just` (Optional)
-https://github.com/casey/just?tab=readme-ov-file#installation
 
 2. Install dependencies (for local running)
 
