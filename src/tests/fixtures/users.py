@@ -9,7 +9,7 @@ from app.core.settings import Settings
 from app.identity.application.security import get_password_hasher
 from app.identity.domain.entities import User
 from app.identity.infra.models.user_model import UserModel
-from app.identity.mappers.user_mapper import UserMapper
+from app.identity.application.mappers import UserMapper
 
 
 @pytest_asyncio.fixture(scope="function")

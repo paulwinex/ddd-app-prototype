@@ -1,9 +1,9 @@
 from app.core.infra.quary_params import OffsetPaginateQueryParams
 from app.identity.api.query_params import UserListQueryParams
 from app.identity.domain.interfaces import UserQueryRepositoryProtocol
-from app.identity.domain.value_objects import EmailVO, UserID
+from app.identity.domain.value_objects import UserID
 from app.identity.application.dto.user_dto import UserListResponseDTO, UserResponseDTO, UserDTO
-from app.identity.mappers.user_mapper import UserMapper
+from app.identity.application.mappers import UserMapper
 
 
 class UserQueryService:

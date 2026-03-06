@@ -10,13 +10,13 @@ from app.identity.domain.interfaces import (
     UserQueryRepositoryProtocol,
 )
 from app.identity.domain.interfaces.password_hasher_protocol import PasswordHasherProtocol
-from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
+from app.identity.domain.value_objects import UserID, PasswordVO
 from app.identity.application.dto.user_dto import (
     UserCreateRequestDTO,
     UserUpdateRequestDTO,
     UserPasswordChangeRequestDTO, UserCreateDbDTO,
 )
-from app.identity.mappers.user_mapper import UserMapper
+from app.identity.application.mappers import UserMapper
 
 
 class UserCommandService:
