@@ -59,5 +59,5 @@ class OffsetPaginationResultSchema(BaseModel):
     has_prev: bool
     limit: int
     offset: int
-    order_by: str
-    sorting: str
+    order_by: str = "id"
+    sorting: str = "asc"
