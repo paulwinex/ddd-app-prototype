@@ -5,4 +5,4 @@ echo "APPLY MIGRATIONS..."
 alembic upgrade head
 
 echo "START TESTING..."
-pytest -vs --tb=short
+pytest -v --tb=short

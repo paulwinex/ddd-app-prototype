@@ -50,65 +50,62 @@ update:
 # Build Docker image
 [working-directory: 'deploy']
 [group('docker')]
-docker-build:
+build:
     docker compose build
 
 
 # Run Docker container
 [working-directory: 'deploy']
 [group('docker')]
-docker-run:
+rund:
     docker compose up
 
 
 [working-directory: 'deploy']
 [group('docker')]
-docker-run-d:
+rundd:
     docker compose up -d
-
-
-# Build and run
-[group('docker')]
-docker-build-run:  docker-build  docker-run
 
 
 # Build and run tests in container
 [working-directory: 'deploy']
 [group('docker')]
-docker-test:
+testd:
     docker compose -f compose-testing.yml up --build --abort-on-container-exit
 
 
 # Build test image only
 [working-directory: 'deploy']
 [group('docker')]
-docker-test-build:
+buildtestd:
     docker compose -f compose-testing.yml build
-
-
-# Stop test containers
-[working-directory: 'deploy']
-[group('docker')]
-docker-test-stop:
-    docker compose -f compose-testing.yml down
 
 
 # Stop containers
 [working-directory: 'deploy']
 [group('docker')]
-docker-stop:
+stopd:
     docker compose down
 
 
+# Make migrations with docker
 [working-directory: 'deploy']
 [group('docker')]
-docker-migrate:
+migrated:
     docker compose exec app alembic upgrade head
 
 
+# Apply migration with docker
+[working-directory: 'src']
+[group('docker')]
+migrationd MESSAGE="no message":
+    docker compose exec alembic revision --autogenerate -m '{{MESSAGE}}'
+
+
+# Show container logs
 [working-directory: 'deploy']
 [group('docker')]
-docker-logs:
+logsd:
     docker compose logs -f --tail 100
 
 

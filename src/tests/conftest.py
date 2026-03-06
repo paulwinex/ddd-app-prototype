@@ -1,31 +1,26 @@
-"""Test configuration and fixtures."""
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
-from httpx import AsyncClient
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-    async_sessionmaker,
-)
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import create_engine, select
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.session import get_async_session
 from app.core.settings import Settings, get_default_settings
 from app.identity.application.security import get_password_hasher
-from app.identity.application.services import UserCommandService, UserQueryService
 from app.identity.domain.entities import User
-from app.identity.infra.repositories.user_command_repository import UserCommandRepository
-from app.identity.infra.repositories.user_query_repository import UserQueryRepository
+from app.identity.infra.models.user_model import UserModel
+from app.identity.mappers.user_mapper import UserMapper
 from app.main import create_app
 
 
 def get_test_settings() -> Settings:
     """Create test settings with test database and simple password validation."""
     return get_default_settings(
-        DB_HOST="localhost",
+        DB_HOST="celan_arch_prototype-db-testing",
         DB_NAME="test",
         DB_USER="test",
         DB_PASSWORD="test",
@@ -42,103 +37,67 @@ def test_settings() -> Settings:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_engine(test_settings: Settings):
-    """Create async database engine for tests."""
-    engine = create_async_engine(
-        test_settings.DB.dsn,
-        echo=False,
-        pool_pre_ping=True,
-    )
+async def admin_user(test_settings: Settings) -> User:
+    dsn = test_settings.DB.dsn.replace("postgresql+asyncpg", "postgresql+psycopg")
+    sync_engine = create_engine(dsn, echo=False)
+    sync_session_factory = sessionmaker(bind=sync_engine, class_=Session, autocommit=False, autoflush=False)
 
-    # Create all tables
-    from app.core.infra.base_model import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    with sync_session_factory() as session:
+        stmt = select(UserModel).where(UserModel.email == test_settings.ADMIN_EMAIL.lower())
+        result = session.execute(stmt)
+        user_model = result.scalar_one_or_none()
 
-    yield engine
+        if not user_model:
+            password_hasher = get_password_hasher()
+            user_model = UserModel(
+                email=test_settings.ADMIN_EMAIL.lower(),
+                password_hash=password_hasher.hash(test_settings.ADMIN_PASSWORD.get_secret_value()),
+                first_name="Super",
+                last_name="Admin",
+                is_active=True,
+                is_superuser=True,
+                is_verified=True,
+            )
+            session.add(user_model)
+            session.commit()
+            session.refresh(user_model)
+        return UserMapper.to_entity(user_model)
 
-    # Cleanup
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+
+@pytest_asyncio.fixture(scope="function")
+async def async_db_session(test_settings: Settings) -> AsyncGenerator[AsyncSession, None]:
+    engine = create_async_engine(test_settings.DB.dsn, echo=False)
+    session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, autocommit=False, autoflush=False)
+
+    async with session_factory() as session:
+        try:
+            yield session
+            await session.commit()
+        finally:
+            await session.rollback()
     await engine.dispose()
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session_factory(db_engine):
-    """Create session factory for tests."""
-    return async_sessionmaker(
-        bind=db_engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
-        autocommit=False,
-        autoflush=False,
-    )
-
-
-@pytest_asyncio.fixture(scope="function")
-async def db_session(db_session_factory) -> AsyncGenerator[AsyncSession, None]:
-    async with db_session_factory() as session:
-        try:
-            yield session
-        finally:
-            await session.rollback()
-
-
-@pytest_asyncio.fixture(scope="function")
 async def test_app(
-    db_session: AsyncSession,
+    async_db_session: AsyncSession,
     test_settings: Settings,
 ) -> AsyncGenerator[FastAPI, None]:
 
     async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
-        yield db_session
+        yield async_db_session
 
     application = create_app(test_settings)
     application.dependency_overrides[get_async_session] = get_test_session
-
     yield application
-
     application.dependency_overrides.clear()
 
 
 @pytest_asyncio.fixture(scope="function")
-async def admin_user(
-    db_session: AsyncSession,
-    test_settings: Settings,
-) -> User:
-    user_command_repo = UserCommandRepository(db_session)
-    user_query_repo = UserQueryRepository(db_session)
-    password_hasher = get_password_hasher()
-
-    command_service = UserCommandService(
-        command_repo=user_command_repo,
-        query_repo=user_query_repo,
-        password_hasher=password_hasher,
-    )
-
-    from app.identity.dto.user_dto import UserCreateRequestDTO
-
-    admin_data = UserCreateRequestDTO(
-        email=test_settings.ADMIN_EMAIL,
-        password=test_settings.ADMIN_PASSWORD.get_secret_value(),
-        first_name="Super",
-        last_name="Admin",
-    )
-
-    user_id = await command_service.create_user(admin_data)
-
-    query_service = UserQueryService(user_query_repo)
-    user_model = await query_service.get_user_by_id(user_id)
-
-    return user_model
-
-
-
-@pytest.fixture(scope="function")
-def client(test_app: FastAPI) -> Generator[TestClient, None, None]:
-    http_client = TestClient(test_app)
-    yield http_client
-    http_client.close()
+async def client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+    transport = ASGITransport(app=test_app)
+    async with AsyncClient(transport=transport, base_url="http://localhost:8000") as http_client:
+        yield http_client
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -147,13 +106,16 @@ async def admin_client(
     test_settings: Settings,
     admin_user: User,
 ) -> AsyncGenerator[AsyncClient, None]:
-    from httpx import ASGITransport
     transport = ASGITransport(app=test_app)
-    async with AsyncClient(transport=transport, base_url="http://test") as http_client:
-        resp = await http_client.post('/api/v1/auth/login', data={
-            'username': test_settings.ADMIN_EMAIL,
-            'password': test_settings.ADMIN_PASSWORD.get_secret_value(),
-        })
+    async with AsyncClient(transport=transport, base_url="http://localhost:8000") as http_client:
+        resp = await http_client.post(
+            '/api/v1/auth/login', data={
+                'username': test_settings.ADMIN_EMAIL,
+                'password': test_settings.ADMIN_PASSWORD.get_secret_value(),
+                'grant_type': 'password',
+            },
+            headers={'accept': 'application/json'}
+        )
         assert resp.status_code == 200, f"Login failed: {resp.text}"
         http_client.headers['Authorization'] = f'Bearer {resp.json()["access_token"]}'
         yield http_client

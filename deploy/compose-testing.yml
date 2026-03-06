@@ -22,7 +22,8 @@ services:
     volumes:
       - ../src:/app/src
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: "no"
 
 
@@ -40,4 +41,9 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
     restart: "no"
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${APP_DB_USER} -d ${APP_DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 3s
