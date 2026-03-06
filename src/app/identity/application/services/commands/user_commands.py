@@ -76,7 +76,7 @@ class UserCommandService:
         user = await self.query_repo.get_by_id(user_id)
         if not self.password_hasher.verify(payload.current_password, str(user.password_hash)):
             raise InvalidCredentialsError()
-        user = UserMapper.to_entity(user)
+        user_entity = UserMapper.to_entity(user)
         new_password = PasswordVO.create_from_raw(payload.new_password, self.password_hasher.hash)
-        user.change_password(new_password)
-        await self.command_repo.update(user)
+        user_entity.change_password(new_password)
+        await self.command_repo.update(str(user_id), UserMapper.to_dto(user_entity))
