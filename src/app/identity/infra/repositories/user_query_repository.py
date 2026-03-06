@@ -7,7 +7,7 @@ from app.identity.domain.interfaces.user_query_repository_protocol import (
     UserQueryRepositoryProtocol,
 )
 from app.identity.domain.value_objects import UserID
-from app.identity.dto import UserDTO
+from app.identity.application.dto import UserDTO
 from app.identity.infra.models.user_model import UserModel
 
 

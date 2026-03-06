@@ -45,21 +45,21 @@ class EmailVO(ValueObjectBase):
 
 @dataclass(frozen=True, slots=True)
 class PasswordVO(ValueObjectBase):
-    hashed_value: str
+    value: str
 
     def __post_init__(self) -> None:
-        if not self.hashed_value.startswith("$"):
+        if not self.value.startswith("$"):
             raise ValueObjectValidationError("Password must be hashed")
 
     @classmethod
     def create_from_raw(cls, raw_password: str, hash_function) -> Self:
-        return cls(hashed_value=hash_function(raw_password))
+        return cls(value=hash_function(raw_password))
 
     def to_py_value(self) -> str:
-        return self.hashed_value
+        return self.value
 
     def verify(self, raw_password: str, verify_function) -> bool:
-        return verify_function(raw_password, self.hashed_value)
+        return verify_function(raw_password, self.value)
 
     def __str__(self) -> str:
         return "[REDACTED]"

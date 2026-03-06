@@ -1,6 +1,6 @@
 from app.identity.domain.entities import User
 from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
-from app.identity.dto.user_dto import UserResponseDTO, UserCreateDbDTO
+from app.identity.application.dto.user_dto import UserResponseDTO, UserCreateDbDTO
 from app.identity.infra.models import UserModel
 
 

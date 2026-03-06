@@ -6,8 +6,7 @@ class ValueObjectBase(ABC):
     """Base class for all value objects"""
 
     @abstractmethod
-    def to_py_value(self) -> Any:
-        pass
+    def to_py_value(self) -> Any: ...
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ValueObjectBase):

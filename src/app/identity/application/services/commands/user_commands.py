@@ -11,7 +11,7 @@ from app.identity.domain.interfaces import (
 )
 from app.identity.domain.interfaces.password_hasher_protocol import PasswordHasherProtocol
 from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
-from app.identity.dto.user_dto import (
+from app.identity.application.dto.user_dto import (
     UserCreateRequestDTO,
     UserUpdateRequestDTO,
     UserPasswordChangeRequestDTO, UserCreateDbDTO,
@@ -37,10 +37,11 @@ class UserCommandService:
         if exists:
             raise UserAlreadyExistsError(f"Email already used {payload.email}")
         payload.password = self.password_hasher.hash(payload.password)
-        user_entity = User(**payload.model_dump(exclude_unset=True))
-        user_entity.change_password(payload.password)
-        creation_data = UserMapper.to_db_dto(user_entity)
+        creation_data = UserCreateDbDTO(
+            password_hash=self.password_hasher.hash(payload.password),
+            **payload.model_dump(exclude_none=True))
         user_id = await self.command_repo.create(creation_data)
+        print('CREATED USER', user_id)
         return user_id
 
     async def update_user(self, user_id: str | UserID, payload: UserUpdateRequestDTO) -> str:

@@ -1,13 +1,16 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from uuid import uuid7
 
+from app.core.domain.entity_base import Entity
 from app.core.utils.datetime_utils import utcnow
 from app.identity.domain.value_objects import UserID, EmailVO, PasswordVO
 
 
+
+
 @dataclass(kw_only=True)
-class User:
+class User(Entity):
     id: UserID = field(default_factory=uuid7)
     email: EmailVO
     password: PasswordVO
@@ -47,8 +50,11 @@ class User:
             self.last_name = last_name
         self.updated_at = utcnow()
 
-    def change_password(self, new_password: str | PasswordVO) -> None:
-        if isinstance(new_password, str):
-            new_password = PasswordVO(new_password)
-        self.password = new_password
+    def change_password(self, new_password_hash: str | PasswordVO) -> None:
+        if isinstance(new_password_hash, str):
+            new_password_hash = PasswordVO(new_password_hash)
+        self.password = new_password_hash
         self.updated_at = utcnow()
+
+
+

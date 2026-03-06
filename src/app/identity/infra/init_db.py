@@ -44,7 +44,7 @@ async def _init_superuser(session: AsyncSession) -> None:
     model = UserModel(
         id=str(user.id),
         email=str(user.email),
-        password_hash=str(user.password.hashed_value),
+        password_hash=str(user.password.value),
         first_name=user.first_name,
         last_name=user.last_name,
         is_superuser=user.is_superuser,

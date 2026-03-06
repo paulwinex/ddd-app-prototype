@@ -136,7 +136,7 @@ class BaseRepository(ABC, Generic[TModelORM, TDTO]):
             return False
 
     async def create(self, payload: TSchema) -> str:
-        model = self.model_class(**payload.model_dump(exclude_unset=True))
+        model = self.model_class.from_dto(payload)
         self.session.add(model)
         await self.session.flush([model])
         return model.id

@@ -10,7 +10,7 @@ from app.identity.domain.interfaces import (
     UserCommandRepositoryProtocol,
 )
 from app.identity.domain.value_objects import UserID
-from app.identity.dto.user_dto import UserPasswordChangeRequestDTO
+from app.identity.application.dto.user_dto import UserPasswordChangeRequestDTO
 from app.identity.exceptions import TokenError
 from app.identity.mappers.user_mapper import UserMapper
 

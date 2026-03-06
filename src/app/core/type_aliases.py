@@ -14,10 +14,6 @@ TSchema = TypeVar("TSchema", bound="BaseModel")
 UUIDv7 = UUID
 
 
-class SupportsID(Protocol):
-    id: UUIDv7
-
-
 class EntityBase(Protocol):
     id: UUIDv7
 
@@ -35,6 +31,3 @@ class PaginationResult(Protocol[TModelORM]):
     offset: int
     has_next: bool
     has_prev: bool
-
-
-Cursor = str

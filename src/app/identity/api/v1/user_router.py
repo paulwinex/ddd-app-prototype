@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from app.core.infra.quary_params import OffsetPaginateQueryParams
 from app.identity.api.dependencies import UserQueryServiceDEP, UserCommandServiceDEP
 from app.identity.api.query_params import UserListQueryParams
-from app.identity.dto.user_dto import (
+from app.identity.application.dto.user_dto import (
     UserListResponseDTO,
     UserResponseDTO,
     UserCreateRequestDTO,

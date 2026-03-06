@@ -9,7 +9,7 @@ from app.identity.api.auth_schemas import (
     RefreshTokenRequestSchema,
 )
 from app.identity.api.dependencies import AuthServiceDEP, CurrentUserDEP, UserCommandServiceDEP
-from app.identity.dto.user_dto import UserResponseDTO
+from app.identity.application.dto.user_dto import UserResponseDTO
 
 router = APIRouter()
 
