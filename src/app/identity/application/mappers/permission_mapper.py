@@ -1,6 +1,6 @@
 from app.identity.domain.entities import Permission
 from app.identity.domain.value_objects import PermissionID
-from app.identity.dto import PermissionDTO
+from app.identity.application.dto import PermissionDTO
 from app.identity.infra.models import PermissionModel
 
 

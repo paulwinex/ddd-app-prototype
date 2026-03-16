@@ -1,21 +1,22 @@
 from dataclasses import dataclass
 
-from app.core.infra.pagination import OffsetPaginationRequest
+from app.core.infra.quary_params import OffsetPaginateQueryParams
 from app.identity.domain.interfaces import PermissionQueryRepositoryProtocol
 from app.identity.domain.value_objects import PermissionID
 from app.identity.application.mappers import PermissionMapper
-from app.identity.application.dto import PermissionDTO
+from app.identity.application.dto import PermissionDTO, PermissionResponseDTO
 
 
 @dataclass
 class PermissionListResult:
-    items: list[PermissionDTO]
+    items: list[PermissionResponseDTO]
     total: int
-    limit: int
-    offset: int
-    order_by: str | None
     has_next: bool
     has_prev: bool
+    limit: int
+    offset: int
+    order_by: str | None = "id"
+    sorting: str = "asc"
 
 
 class PermissionQueryService:
@@ -34,7 +35,7 @@ class PermissionQueryService:
 
     async def get_permission_list(
         self,
-        pagination: OffsetPaginationRequest | None = None,
+        pagination: OffsetPaginateQueryParams,
         filters: dict | None = None,
     ) -> PermissionListResult:
         result = await self.query_repo.get_list(pagination=pagination, filters=filters)
@@ -44,9 +45,10 @@ class PermissionQueryService:
             total=result.total,
             limit=result.limit,
             offset=result.offset,
-            order_by=result.order_by,
             has_next=result.has_next,
             has_prev=result.has_prev,
+            order_by=result.order_by,
+            sorting=pagination.sorting,
         )
 
     async def permission_exists(self, permission_id: str) -> bool:

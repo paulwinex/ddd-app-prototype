@@ -20,8 +20,6 @@ from app.identity.application.mappers import UserMapper
 
 
 class UserCommandService:
-    """Service for user commands."""
-
     def __init__(
         self,
         command_repo: UserCommandRepositoryProtocol,
@@ -40,8 +38,7 @@ class UserCommandService:
         creation_data = UserCreateDbDTO(
             password_hash=self.password_hasher.hash(payload.password),
             **payload.model_dump(exclude_none=True))
-        user_id = await self.command_repo.create(creation_data)
-        print('CREATED USER', user_id)
+        user_id = await self.command_repo.create(UserMapper.create_entity(creation_data))
         return user_id
 
     async def update_user(self, user_id: str | UserID, payload: UserUpdateRequestDTO) -> str:
@@ -67,7 +64,7 @@ class UserCommandService:
             raise UserInactiveError()
         user = UserMapper.to_entity(user)
         user.update_last_login()
-        await self.command_repo.update(user)
+        await self.command_repo.update(user.id, UserMapper.to_dto(user))
         return user
 
     async def change_password(

@@ -21,11 +21,11 @@ class UserQueryService:
         return UserMapper.to_dto(user)
 
     async def get_user_list(
-        self, filters: UserListQueryParams, pagination: OffsetPaginateQueryParams
+        self, pagination: OffsetPaginateQueryParams, filters: dict | None = None
     ) -> UserListResponseDTO:
         items, total = await self.query_repo.get_list(
             pagination=pagination,
-            filters=filters.model_dump(exclude_unset=True),
+            filters=filters,
         )
         items = [UserMapper.to_dto(user) for user in items]  # TODO check direct
 

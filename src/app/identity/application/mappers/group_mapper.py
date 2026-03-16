@@ -1,6 +1,6 @@
 from app.identity.domain.entities import Group
 from app.identity.domain.value_objects import GroupID
-from app.identity.dto import GroupDTO
+from app.identity.application.dto import GroupDTO, GroupCreateRequestDTO
 from app.identity.infra.models import GroupModel
 
 
@@ -23,6 +23,15 @@ class GroupMapper:
             name=dto.name,
             description=dto.description,
             is_system=dto.is_system,
+        )
+
+    @staticmethod
+    def create_entity(dto: GroupCreateRequestDTO) -> Group:
+        return Group(
+            id = GroupID(),
+            name = dto.name,
+            description = dto.description,
+            is_system = dto.is_system,
         )
 
     @staticmethod

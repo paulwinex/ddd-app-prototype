@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
-from app.core.infra.quary_params import OffsetPaginateQueryParams
 from app.identity.api.dependencies import UserQueryServiceDEP, UserCommandServiceDEP
 from app.identity.api.query_params import UserListQueryParams
 from app.identity.application.dto.user_dto import (
@@ -24,11 +23,13 @@ router = APIRouter()
     dependencies=[Depends(has_permissions([UserPermission.CAN_LIST_USERS]))],
 )
 async def list_users(
-    pagination: Annotated[OffsetPaginateQueryParams, Depends()],
-    filters: Annotated[UserListQueryParams, Depends()],
+    params: Annotated[UserListQueryParams, Depends()],
     user_query_service: UserQueryServiceDEP,
 ) -> UserListResponseDTO:
-    return await user_query_service.get_user_list(filters, pagination)
+    return await user_query_service.get_user_list(
+        pagination=params,
+        filters=params.model_dump(exclude_unset=True),
+    )
 
 
 @router.get(

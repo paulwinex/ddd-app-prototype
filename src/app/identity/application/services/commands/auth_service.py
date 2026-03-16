@@ -4,15 +4,15 @@ from app.identity.api.auth_schemas import (
     RefreshTokenRequestSchema,
 )
 from app.identity.application import security
+from app.identity.application.dto.user_dto import UserPasswordChangeRequestDTO
+from app.identity.application.mappers import UserMapper
 from app.identity.domain.entities import User
 from app.identity.domain.interfaces import (
     UserQueryRepositoryProtocol,
     UserCommandRepositoryProtocol,
 )
 from app.identity.domain.value_objects import UserID
-from app.identity.application.dto.user_dto import UserPasswordChangeRequestDTO
 from app.identity.exceptions import TokenError
-from app.identity.application.mappers import UserMapper
 
 
 class AuthService:

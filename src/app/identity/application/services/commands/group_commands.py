@@ -1,19 +1,15 @@
+from app.identity.application.dto import GroupCreateRequestDTO, GroupUpdateRequestDTO
+from app.identity.application.mappers import GroupMapper
+from app.identity.domain.exceptions import (
+    GroupAlreadyExistsError,
+    SuperUserGroupError,
+)
 from app.identity.domain.interfaces import (
     GroupQueryRepositoryProtocol,
     GroupCommandRepositoryProtocol,
     UserQueryRepositoryProtocol,
     UserCommandRepositoryProtocol,
 )
-from app.identity.domain.exceptions import (
-    GroupNotFoundError,
-    GroupAlreadyExistsError,
-    UserNotFoundError,
-    UserAlreadyInGroupError,
-    UserNotInGroupError,
-    SuperUserGroupError,
-)
-from app.identity.application.dto import GroupCreateRequestDTO, GroupUpdateRequestDTO
-from app.identity.application.mappers import GroupMapper
 
 
 class GroupCommandService:
@@ -33,7 +29,7 @@ class GroupCommandService:
         existing = await self.query_repo.get_by_name(payload.name)
         if existing:
             raise GroupAlreadyExistsError(payload.name)
-        group_entity = GroupMapper.dto_to_entity(payload)
+        group_entity = GroupMapper.create_entity(payload)
         return await self.cmd_repo.create(group_entity)
 
     async def update_group(self, group_id: str, payload: GroupUpdateRequestDTO) -> str:
@@ -54,30 +50,28 @@ class GroupCommandService:
             raise SuperUserGroupError("Cannot delete system group")
         await self.cmd_repo.delete(group_id)
 
-    async def add_user_to_group(self, user_id: str, group_id: str) -> None:
+    async def add_user_to_group(self, user_id: str, group_id: str) -> bool:
         if await self.query_repo.user_in_group(user_id, group_id):
-            raise UserAlreadyInGroupError(user_id, group_id)
-
+            return False
         group = await self.query_repo.get_by_id(group_id)
         if group.is_system:
             superuser_group_users = await self.cmd_repo.get_group_users(group_id)
             if len(superuser_group_users) > 0:
                 raise SuperUserGroupError("SuperUser group can only contain one user")
-
         await self.cmd_repo.add_user(group_id, user_id)
+        return True
 
-    async def remove_user_from_group(self, user_id: str, group_id: str) -> None:
+    async def remove_user_from_group(self, user_id: str, group_id: str) -> bool:
         group = await self.query_repo.get_by_id(group_id)
 
         if not await self.query_repo.user_in_group(user_id, group_id):
-            raise UserNotInGroupError(user_id, group_id)
-
+            return False
         if group.is_system:
             superuser_group_users = await self.cmd_repo.get_group_users(group_id)
             if len(superuser_group_users) == 1:
                 raise SuperUserGroupError("Cannot remove the only user from SuperUser group")
-
         await self.cmd_repo.remove_user(group_id, user_id)
+        return True
 
     async def add_permission_to_group(self, group_id: str, permission_id: str) -> None:
         await self.cmd_repo.add_permission(group_id, permission_id)
