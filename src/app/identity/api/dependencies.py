@@ -3,18 +3,35 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.identity.application.security import oauth2_scheme, get_password_hasher
-from app.identity.application.services import AuthService, UserCommandService, UserQueryService
+from app.identity.application.services import (
+    AuthService,
+    UserCommandService,
+    UserQueryService,
+    GroupCommandService,
+    GroupQueryService,
+    PermissionQueryService,
+)
 from app.identity.domain.entities import User
 from app.identity.domain.interfaces import (
     PasswordHasherProtocol,
     UserCommandRepositoryProtocol,
     UserQueryRepositoryProtocol,
+    GroupCommandRepositoryProtocol,
+    GroupQueryRepositoryProtocol,
+    PermissionQueryRepositoryProtocol,
 )
 from app.identity.exceptions import AuthorizationError
 from app.identity.infra.dependencies import (
     UserQueryRepoDEP,
+    UserCommandRepoDEP,
+    GroupQueryRepoDEP,
+    GroupCommandRepoDEP,
+    PermissionQueryRepoDEP,
     get_user_query_repo,
     get_user_command_repo,
+    get_group_query_repo,
+    get_group_command_repo,
+    get_permission_query_repo,
 )
 
 
@@ -39,9 +56,31 @@ def get_auth_service(
     return AuthService(user_query_repo, user_command_repo)
 
 
+async def get_group_query_service(
+    group_query_repo: GroupQueryRepoDEP,
+) -> GroupQueryService:
+    return GroupQueryService(group_query_repo)
+
+
+async def get_group_command_service(
+    command_repo: Annotated[GroupCommandRepositoryProtocol, Depends(get_group_command_repo)],
+    query_repo: Annotated[GroupQueryRepositoryProtocol, Depends(get_group_query_repo)],
+) -> GroupCommandService:
+    return GroupCommandService(command_repo, query_repo)
+
+
+async def get_permission_query_service(
+    permission_query_repo: PermissionQueryRepoDEP,
+) -> PermissionQueryService:
+    return PermissionQueryService(permission_query_repo)
+
+
 UserQueryServiceDEP = Annotated[UserQueryService, Depends(get_user_query_service)]
 UserCommandServiceDEP = Annotated[UserCommandService, Depends(get_user_command_service)]
 AuthServiceDEP = Annotated[AuthService, Depends(get_auth_service)]
+GroupQueryServiceDEP = Annotated[GroupQueryService, Depends(get_group_query_service)]
+GroupCommandServiceDEP = Annotated[GroupCommandService, Depends(get_group_command_service)]
+PermissionQueryServiceDEP = Annotated[PermissionQueryService, Depends(get_permission_query_service)]
 OAuthTokenDEP = Annotated[str, Depends(oauth2_scheme)]
 
 
