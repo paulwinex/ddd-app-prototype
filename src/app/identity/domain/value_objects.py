@@ -14,6 +14,16 @@ class UserID(EntityID):
 
 
 @dataclass(frozen=True, slots=True)
+class GroupID(EntityID):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class PermissionID(EntityID):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
 class EmailVO(ValueObjectBase):
     value: str
 
