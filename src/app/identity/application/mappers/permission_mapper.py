@@ -25,4 +25,10 @@ class PermissionMapper:
 
     @staticmethod
     def to_dto(entity: Permission | PermissionModel) -> PermissionDTO:
-        return PermissionDTO.model_validate(entity)
+        return PermissionDTO(
+            id=str(entity.id),
+            name=entity.name,
+            codename=entity.codename,
+            created_at=entity.created_at,
+            updated_at=entity.updated_at,
+        )

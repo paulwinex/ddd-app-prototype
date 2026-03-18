@@ -28,10 +28,10 @@ class GroupMapper:
     @staticmethod
     def create_entity(dto: GroupCreateRequestDTO) -> Group:
         return Group(
-            id = GroupID(),
-            name = dto.name,
-            description = dto.description,
-            is_system = dto.is_system,
+            id=GroupID(),
+            name=dto.name,
+            description=dto.description,
+            is_system=dto.is_system,
         )
 
     @staticmethod
@@ -45,4 +45,20 @@ class GroupMapper:
 
     @staticmethod
     def to_dto(entity: Group | GroupModel) -> GroupDTO:
-        return GroupDTO.model_validate(entity)
+        if isinstance(entity, Group):
+            return GroupDTO(
+                id=str(entity.id),
+                name=entity.name,
+                description=entity.description,
+                is_system=entity.is_system,
+                created_at=entity.created_at,
+                updated_at=entity.updated_at,
+            )
+        return GroupDTO(
+            id=str(entity.id),
+            name=entity.name,
+            description=entity.description,
+            is_system=entity.is_system,
+            created_at=entity.created_at,
+            updated_at=entity.updated_at,
+        )

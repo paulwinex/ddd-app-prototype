@@ -39,5 +39,13 @@ class PermissionAlreadyExistsError(DomainError):
     status_code = HTTPStatus.CONFLICT
 
 
+class UserAlreadyInGroupError(DomainError):
+    status_code = HTTPStatus.CONFLICT
+
+
+class UserNotInGroupError(DomainError):
+    status_code = HTTPStatus.NOT_FOUND
+
+
 class SuperUserGroupError(DomainError):
     status_code = HTTPStatus.FORBIDDEN

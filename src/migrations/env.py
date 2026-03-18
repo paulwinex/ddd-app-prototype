@@ -17,7 +17,18 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 from app.core.infra.base_model import Base
-from app.identity.infra.models import UserModel
+
+# Import all models to ensure they are registered with Base.metadata
+# Import main models first, then M2M tables (order matters for foreign keys)
+
+# Identity domain - main models
+from app.identity.infra.models.user_model import UserModel
+from app.identity.infra.models.group_model import GroupModel
+from app.identity.infra.models.permission_model import PermissionModel
+
+# Identity domain - M2M tables
+from app.identity.infra.models.user_group_model import UserGroupModelM2M
+from app.identity.infra.models.group_permission_model import GroupPermissionModelM2M
 
 target_metadata = Base.metadata
 

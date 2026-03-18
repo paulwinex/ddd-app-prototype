@@ -34,11 +34,15 @@ class UserCommandService:
         exists = await self.query_repo.exists_by_email(str(payload.email))
         if exists:
             raise UserAlreadyExistsError(f"Email already used {payload.email}")
-        payload.password = self.password_hasher.hash(payload.password)
+        password_hash = self.password_hasher.hash(payload.password)
         creation_data = UserCreateDbDTO(
-            password_hash=self.password_hasher.hash(payload.password),
-            **payload.model_dump(exclude_none=True))
-        user_id = await self.command_repo.create(UserMapper.create_entity(creation_data))
+            email=payload.email,
+            password_hash=password_hash,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+        )
+        user_entity = UserMapper.create_entity(creation_data)
+        user_id = await self.command_repo.create(user_entity)
         return user_id
 
     async def update_user(self, user_id: str | UserID, payload: UserUpdateRequestDTO) -> str:

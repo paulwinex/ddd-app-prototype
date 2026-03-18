@@ -14,12 +14,12 @@ class GroupPermissionModelM2M(Base):
     __tablename__ = "group_permissions_m2m"
 
     group_id: Mapped[str] = mapped_column(
-        ForeignKey("group.id", ondelete="CASCADE"),
+        ForeignKey("groups.id", ondelete="CASCADE"),
         primary_key=True,
         index=True,
     )
     permission_id: Mapped[str] = mapped_column(
-        ForeignKey("permission.id", ondelete="CASCADE"),
+        ForeignKey("permissions.id", ondelete="CASCADE"),
         primary_key=True,
         index=True,
     )

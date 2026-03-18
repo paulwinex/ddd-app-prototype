@@ -60,12 +60,12 @@ class UserMapper:
             last_name=entity.last_name,
         )
 
-    @classmethod
-    def create_entity(cls, dto: UserCreateDbDTO) -> User:
+    @staticmethod
+    def create_entity(dto: UserCreateDbDTO) -> User:
         return User(
             id=UserID(),
             email=EmailVO(dto.email),
+            password=PasswordVO(dto.password_hash),
             first_name=dto.first_name,
             last_name=dto.last_name,
-            password=PasswordVO(dto.password_hash),
         )

@@ -3,6 +3,8 @@ from app.identity.application.mappers import GroupMapper
 from app.identity.domain.exceptions import (
     GroupAlreadyExistsError,
     SuperUserGroupError,
+    UserAlreadyInGroupError,
+    UserNotInGroupError,
 )
 from app.identity.domain.interfaces import (
     GroupQueryRepositoryProtocol,
@@ -50,28 +52,26 @@ class GroupCommandService:
             raise SuperUserGroupError("Cannot delete system group")
         await self.cmd_repo.delete(group_id)
 
-    async def add_user_to_group(self, user_id: str, group_id: str) -> bool:
+    async def add_user_to_group(self, user_id: str, group_id: str) -> None:
         if await self.query_repo.user_in_group(user_id, group_id):
-            return False
+            raise UserAlreadyInGroupError(detail=f"User {user_id} already in group {group_id}")
         group = await self.query_repo.get_by_id(group_id)
         if group.is_system:
             superuser_group_users = await self.cmd_repo.get_group_users(group_id)
             if len(superuser_group_users) > 0:
                 raise SuperUserGroupError("SuperUser group can only contain one user")
         await self.cmd_repo.add_user(group_id, user_id)
-        return True
 
-    async def remove_user_from_group(self, user_id: str, group_id: str) -> bool:
+    async def remove_user_from_group(self, user_id: str, group_id: str) -> None:
         group = await self.query_repo.get_by_id(group_id)
 
         if not await self.query_repo.user_in_group(user_id, group_id):
-            return False
+            raise UserNotInGroupError(detail=f"User {user_id} not in group {group_id}")
         if group.is_system:
             superuser_group_users = await self.cmd_repo.get_group_users(group_id)
             if len(superuser_group_users) == 1:
                 raise SuperUserGroupError("Cannot remove the only user from SuperUser group")
         await self.cmd_repo.remove_user(group_id, user_id)
-        return True
 
     async def add_permission_to_group(self, group_id: str, permission_id: str) -> None:
         await self.cmd_repo.add_permission(group_id, permission_id)

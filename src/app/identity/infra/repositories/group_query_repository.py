@@ -1,8 +1,11 @@
+from typing import Any
+
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.infra.repository_base import BaseRepository
+from app.core.infra.pagination import OffsetPaginationRequest, OffsetPaginationResult
 from app.core.exceptions import NotFoundError
 from app.identity.domain.entities import Group
 from app.identity.domain.interfaces import GroupQueryRepositoryProtocol
@@ -16,6 +19,23 @@ class GroupQueryRepository(BaseRepository[GroupModel, Group], GroupQueryReposito
 
     def __init__(self, session: AsyncSession):
         super().__init__(session)
+
+    async def get_list(
+        self,
+        pagination: OffsetPaginationRequest | None = None,
+        filters: dict[str, Any] | None = None,
+    ) -> OffsetPaginationResult[GroupModel]:
+        models, total = await super().get_list(pagination, filters)
+        return OffsetPaginationResult(
+            items=models,
+            total=total,
+            limit=pagination.limit if pagination else 50,
+            offset=pagination.offset if pagination else 0,
+            order_by=pagination.order_by if pagination else "id",
+            sorting=pagination.sorting if pagination else "asc",
+            has_next=pagination.offset + len(models) < total if pagination else False,
+            has_prev=pagination.offset > 0 if pagination else False,
+        )
 
     async def get_by_id(
         self,

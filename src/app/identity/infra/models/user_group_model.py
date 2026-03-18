@@ -14,12 +14,12 @@ class UserGroupModelM2M(Base):
     __tablename__ = "user_groups_m2m"
 
     user_id: Mapped[str] = mapped_column(
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         primary_key=True,
         index=True,
     )
     group_id: Mapped[str] = mapped_column(
-        ForeignKey("group.id", ondelete="CASCADE"),
+        ForeignKey("groups.id", ondelete="CASCADE"),
         primary_key=True,
         index=True,
     )

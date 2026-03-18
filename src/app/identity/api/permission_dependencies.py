@@ -1,3 +1,4 @@
+from functools import partial
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends
@@ -32,7 +33,7 @@ class PermissionChecker:
         self.group_command_repo = group_command_repo
         self.permission_query_repo = permission_query_repo
 
-    async def has_permissions(
+    async def check_permissions(
         self,
         required_permissions: list[PermissionsBase],
         user_id: str,
@@ -59,35 +60,37 @@ class PermissionChecker:
                 raise AuthorizationError(detail=f"Permission {permission.value} is required")
 
 
-def has_permissions(required_permissions: list[PermissionsBase]):
-    """Dependency decorator for checking permissions in FastAPI routes.
-
-    Usage:
-        @router.post('/users', dependencies=[has_permissions([UserPermission.CAN_ADD_USER])])
-        async def create_user(payload, current_user: CurrentUserDEP):
-            ...
-    """
-    from app.identity.api.dependencies import CurrentUserDEP
-
-    async def permission_checker(
-        current_user: Annotated["User", CurrentUserDEP],
-        checker: Annotated[PermissionChecker, Depends(get_permission_checker)],
-    ) -> None:
-        await checker.has_permissions(
-            required_permissions,
-            str(current_user.id),
-            current_user.is_superuser,
-        )
-
-    return Depends(permission_checker)
-
-
 async def get_permission_checker(
     group_query_repo: GroupQueryRepoDEP,
     group_command_repo: GroupCommandRepoDEP,
     permission_query_repo: PermissionQueryRepoDEP,
 ) -> PermissionChecker:
     return PermissionChecker(group_query_repo, group_command_repo, permission_query_repo)
+
+
+def has_permissions(required_permissions: list[PermissionsBase]):
+    """Dependency for checking permissions in FastAPI routes.
+
+    Usage:
+        @router.post('/users', dependencies=[Depends(has_permissions([UserPermission.CAN_ADD_USER]))])
+        async def create_user(payload):
+            ...
+
+    Note: Must be wrapped in Depends() when used in dependencies list.
+    """
+    from app.identity.api.dependencies import get_current_active_user
+
+    async def permission_checker(
+        current_user: Annotated["User", Depends(get_current_active_user)],
+        checker: PermissionChecker = Depends(get_permission_checker),
+    ) -> None:
+        await checker.check_permissions(
+            required_permissions,
+            str(current_user.id),
+            current_user.is_superuser,
+        )
+
+    return permission_checker
 
 
 PermissionCheckerDEP = Annotated[PermissionChecker, Depends(get_permission_checker)]

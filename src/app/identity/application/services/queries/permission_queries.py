@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.core.infra.quary_params import OffsetPaginateQueryParams
+from app.core.infra.pagination import OffsetPaginationRequest
 from app.identity.domain.interfaces import PermissionQueryRepositoryProtocol
 from app.identity.domain.value_objects import PermissionID
 from app.identity.application.mappers import PermissionMapper
@@ -38,7 +39,13 @@ class PermissionQueryService:
         pagination: OffsetPaginateQueryParams,
         filters: dict | None = None,
     ) -> PermissionListResult:
-        result = await self.query_repo.get_list(pagination=pagination, filters=filters)
+        pagination_request = OffsetPaginationRequest(
+            limit=pagination.limit,
+            offset=pagination.offset,
+            order_by=pagination.order_by,
+            sorting=pagination.sorting,
+        )
+        result = await self.query_repo.get_list(pagination=pagination_request, filters=filters)
         items = [PermissionMapper.to_dto(permission) for permission in result.items]
         return PermissionListResult(
             items=items,

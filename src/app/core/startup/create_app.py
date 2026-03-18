@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.startup.lifespan import lifespan
 from app.core.startup.exception_handlers import setup_exception_handlers
 from app.core.settings import get_default_settings, Settings
-from app.identity.api.v1.user_router import router as user_router
 from app.identity.api.v1.auth_router import router as auth_router
+from app.identity.api.v1.user_router import router as user_router
+from app.identity.api.v1.group_router import router as group_router
+from app.identity.api.v1.permission_router import router as permission_router
 from app import __version__
 
 
@@ -47,4 +49,6 @@ def _include_routers(app: FastAPI) -> None:
     main_router_v1 = APIRouter(prefix="/api/v1")
     main_router_v1.include_router(auth_router, prefix="/auth", tags=["Authentication"])
     main_router_v1.include_router(user_router, prefix="/users", tags=["Users"])
+    main_router_v1.include_router(group_router, prefix="/groups", tags=["Groups"])
+    main_router_v1.include_router(permission_router, prefix="/permissions", tags=["Permissions"])
     app.include_router(main_router_v1)

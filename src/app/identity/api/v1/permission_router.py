@@ -9,7 +9,7 @@ from app.identity.application.services.queries.permission_queries import Permiss
 from app.identity.domain.permissions import PermissionPermission
 from app.identity.api.permission_dependencies import has_permissions
 
-router = APIRouter(prefix="/permissions", tags=["Permissions"])
+router = APIRouter()
 
 
 @router.get(
@@ -26,7 +26,14 @@ async def list_permissions(
         pagination=pagination_params,
         filters=params.model_dump(exclude_unset=True),
     )
-    return PermissionListResponseDTO.model_validate(result)
+    return PermissionListResponseDTO(
+        items=result.items,
+        total=result.total,
+        limit=result.limit,
+        offset=result.offset,
+        has_next=result.has_next,
+        has_prev=result.has_prev,
+    )
 
 
 @router.get(

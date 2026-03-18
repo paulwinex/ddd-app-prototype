@@ -18,7 +18,7 @@ from app.identity.application.dto import (
 )
 from app.identity.domain.permissions import GroupPermission
 
-router = APIRouter(prefix="/groups", tags=["Groups"])
+router = APIRouter()
 
 
 @router.get(
@@ -35,7 +35,14 @@ async def list_groups(
         pagination=pagination_params,
         filters=params.model_dump(exclude_unset=True),
     )
-    return GroupListResponseDTO.model_validate(result)
+    return GroupListResponseDTO(
+        items=result.items,
+        total=result.total,
+        limit=result.limit,
+        offset=result.offset,
+        has_next=result.has_next,
+        has_prev=result.has_prev,
+    )
 
 
 @router.get(

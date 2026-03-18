@@ -17,8 +17,9 @@ class GroupCommandRepository(BaseRepository, GroupCommandRepositoryProtocol):
 
     async def create(self, group: Group) -> str:
         model = GroupMapper.to_model(group)
-        await super().create(model)
-        return str(group.id)
+        self.session.add(model)
+        await self.session.flush([model])
+        return model.id
 
     async def update(self, id: str, group: Group) -> str:
         model = GroupMapper.to_model(group)
@@ -35,8 +36,10 @@ class GroupCommandRepository(BaseRepository, GroupCommandRepositoryProtocol):
         return id
 
     async def delete(self, id: str) -> None:
-        model = await self.get_by_id(id)
-        await super().delete(model)
+        await self.session.execute(
+            delete(GroupModel).where(GroupModel.id == id)
+        )
+        await self.session.flush()
 
     async def add_user(self, group_id: str, user_id: str) -> None:
         stmt = select(UserGroupModelM2M).where(

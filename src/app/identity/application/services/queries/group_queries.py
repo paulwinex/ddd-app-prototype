@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.core.infra.quary_params import OffsetPaginateQueryParams
+from app.core.infra.pagination import OffsetPaginationRequest
 from app.identity.domain.interfaces import GroupQueryRepositoryProtocol
 from app.identity.domain.value_objects import GroupID
 from app.identity.application.mappers import GroupMapper
@@ -60,7 +61,13 @@ class GroupQueryService:
         pagination: OffsetPaginateQueryParams,
         filters: dict[str, Any] | None = None,
     ) -> GroupListResult:
-        result = await self.query_repo.get_list(pagination=pagination, filters=filters)
+        pagination_request = OffsetPaginationRequest(
+            limit=pagination.limit,
+            offset=pagination.offset,
+            order_by=pagination.order_by,
+            sorting=pagination.sorting,
+        )
+        result = await self.query_repo.get_list(pagination=pagination_request, filters=filters)
         items = [GroupMapper.to_dto(group) for group in result.items]
         return GroupListResult(
             items=items,
