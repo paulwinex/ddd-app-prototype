@@ -7,7 +7,6 @@ class TestAdminUserOperations:
 
     @pytest.mark.asyncio
     async def test_admin_can_create_user(self, admin_client: AsyncClient):
-        """Test that admin can create new users."""
         user_data = {
             'email': 'createdbyadmin@test.com',
             'password': 'password123',
@@ -79,7 +78,7 @@ class TestAdminUserOperations:
 
     @pytest.mark.asyncio
     async def test_admin_can_change_any_user_password(
-        self, admin_client: AsyncClient, regular_user, async_db_session, test_settings
+            self, admin_client: AsyncClient, regular_user, async_db_session, test_settings
     ):
         password_data = {
             'current_password': 'regularpass123',
@@ -89,15 +88,13 @@ class TestAdminUserOperations:
             f'/api/v1/users/{regular_user.id}/change-password',
             json=password_data
         )
-        assert resp.status_code in [status.HTTP_204_NO_CONTENT, status.HTTP_401_UNAUTHORIZED]
+        assert resp.status_code == status.HTTP_204_NO_CONTENT
 
 
 class TestRegularUserRestrictions:
-    """Tests for regular user access restrictions."""
 
     @pytest.mark.asyncio
     async def test_regular_user_cannot_create_users(self, authenticated_client: AsyncClient):
-        """Test that regular user cannot create new users."""
         user_data = {
             'email': 'nouser@test.com',
             'password': 'password123',
@@ -105,10 +102,7 @@ class TestRegularUserRestrictions:
             'last_name': 'User',
         }
         resp = await authenticated_client.post('/api/v1/users', json=user_data)
-        assert resp.status_code in [
-            status.HTTP_201_CREATED,
-            status.HTTP_403_FORBIDDEN,
-        ]
+        assert resp.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.asyncio
     async def test_regular_user_can_get_own_profile(self, authenticated_client: AsyncClient, regular_user):
@@ -136,10 +130,7 @@ class TestRegularUserRestrictions:
         user_id = str(user_to_delete.id)
 
         resp = await authenticated_client.delete(f'/api/v1/users/{user_id}')
-        assert resp.status_code in [
-            status.HTTP_204_NO_CONTENT,
-            status.HTTP_403_FORBIDDEN,
-        ]
+        assert resp.status_code == status.HTTP_403_FORBIDDEN
 
 
 class TestInactiveUserRestrictions:
@@ -170,11 +161,7 @@ class TestInactiveUserRestrictions:
             },
             headers={'accept': 'application/json'}
         )
-        assert resp.status_code in [
-            status.HTTP_200_OK,
-            status.HTTP_400_BAD_REQUEST,
-            status.HTTP_401_UNAUTHORIZED,
-        ]
+        assert resp.status_code == status.HTTP_403_FORBIDDEN
 
 
 class TestAdminProfile:

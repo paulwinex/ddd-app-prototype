@@ -32,7 +32,7 @@ class TestAuth:
             },
             headers={'accept': 'application/json'}
         )
-        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
     @pytest.mark.asyncio
     async def test_login_nonexistent_user(self, client: AsyncClient):
@@ -44,7 +44,7 @@ class TestAuth:
             },
             headers={'accept': 'application/json'}
         )
-        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
     @pytest.mark.asyncio
     async def test_get_current_user_profile(self, admin_client: AsyncClient):
@@ -63,7 +63,6 @@ class TestAuth:
 
     @pytest.mark.asyncio
     async def test_refresh_token(self, client: AsyncClient, test_settings):
-                # First login to get tokens
         login_resp = await client.post(
             '/api/v1/auth/login', data={
                 'username': test_settings.ADMIN_EMAIL,
@@ -74,8 +73,6 @@ class TestAuth:
         )
         assert login_resp.status_code == status.HTTP_200_OK
         refresh_token = login_resp.json()['refresh_token']
-
-        # Refresh token
         resp = await client.post(
             '/api/v1/auth/refresh',
             json={'refresh_token': refresh_token},
@@ -102,5 +99,4 @@ class TestAuth:
             json={'refresh_token': ''},
             headers={'accept': 'application/json'}
         )
-        # Empty token returns 401 or 422
-        assert resp.status_code in [status.HTTP_401_UNAUTHORIZED, status.HTTP_422_UNPROCESSABLE_CONTENT]
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED

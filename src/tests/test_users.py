@@ -1,6 +1,6 @@
 import pytest
-from httpx import AsyncClient
 from fastapi import status
+from httpx import AsyncClient
 
 from app.identity.infra.models import UserModel
 
@@ -32,7 +32,7 @@ class TestUserCreate:
             'last_name': 'User',
         }
         resp = await admin_client.post('/api/v1/users', json=user_data)
-        assert resp.status_code in [status.HTTP_400_BAD_REQUEST, status.HTTP_409_CONFLICT, status.HTTP_500_INTERNAL_SERVER_ERROR]
+        assert resp.status_code == status.HTTP_409_CONFLICT
 
     @pytest.mark.asyncio
     async def test_create_user_invalid_email(self, admin_client: AsyncClient):
@@ -65,7 +65,7 @@ class TestUserCreate:
             'last_name': 'User',
         }
         resp = await client.post('/api/v1/users', json=user_data)
-        assert resp.status_code == status.HTTP_201_CREATED
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUserGet:
@@ -87,13 +87,13 @@ class TestUserGet:
     @pytest.mark.asyncio
     async def test_get_user_unauthorized(self, client: AsyncClient, regular_user):
         resp = await client.get(f'/api/v1/users/{regular_user.id}')
-        assert resp.status_code == status.HTTP_200_OK
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUserList:
-    
+
     @pytest.mark.asyncio
-    async def test_list_users_success(self, admin_client: AsyncClient):
+    async def test_list_users_success(self, admin_client: AsyncClient, regular_user):
         resp = await admin_client.get('/api/v1/users')
         assert resp.status_code == status.HTTP_200_OK
         data = resp.json()
@@ -101,7 +101,9 @@ class TestUserList:
         assert 'total' in data
         assert 'limit' in data
         assert 'offset' in data
-        assert len(data['items']) >= 1
+        assert isinstance(data['items'], list)
+        assert data['total'] >= 1
+        assert any(u['id'] == str(regular_user.id) for u in data['items'])
 
     @pytest.mark.asyncio
     async def test_list_users_with_pagination(self, admin_client: AsyncClient):
@@ -140,12 +142,11 @@ class TestUserList:
     @pytest.mark.asyncio
     async def test_list_users_unauthorized(self, client: AsyncClient):
         resp = await client.get('/api/v1/users')
-        # Note: API allows public read access to user list
-        assert resp.status_code == status.HTTP_200_OK
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUserUpdate:
-    
+
     @pytest.mark.asyncio
     async def test_update_user_success(self, admin_client: AsyncClient, regular_user):
         update_data = {
@@ -157,6 +158,12 @@ class TestUserUpdate:
             json=update_data
         )
         assert resp.status_code == status.HTTP_200_OK
+        assert isinstance(resp.json(), str)
+        get_resp = await admin_client.get(f'/api/v1/users/{regular_user.id}')
+        assert get_resp.status_code == status.HTTP_200_OK
+        data = get_resp.json()
+        assert data['first_name'] == 'Updated'
+        assert data['last_name'] == 'Name'
 
     @pytest.mark.asyncio
     async def test_update_user_empty_body(self, admin_client: AsyncClient, regular_user):
@@ -165,6 +172,12 @@ class TestUserUpdate:
             json={}
         )
         assert resp.status_code == status.HTTP_200_OK
+        assert isinstance(resp.json(), str)
+        get_resp = await admin_client.get(f'/api/v1/users/{regular_user.id}')
+        assert get_resp.status_code == status.HTTP_200_OK
+        data = get_resp.json()
+        assert data['first_name'] == regular_user.first_name
+        assert data['last_name'] == regular_user.last_name
 
     @pytest.mark.asyncio
     async def test_update_nonexistent_user(self, admin_client: AsyncClient):
@@ -182,7 +195,7 @@ class TestUserUpdate:
             f'/api/v1/users/{regular_user.id}',
             json=update_data
         )
-        assert resp.status_code == status.HTTP_200_OK
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUserDelete:
@@ -225,11 +238,11 @@ class TestUserDelete:
     @pytest.mark.asyncio
     async def test_delete_user_unauthorized(self, client: AsyncClient, regular_user):
         resp = await client.delete(f'/api/v1/users/{regular_user.id}')
-        assert resp.status_code == status.HTTP_204_NO_CONTENT
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestUserChangePassword:
-    
+
     @pytest.mark.asyncio
     async def test_change_password_success(self, admin_client: AsyncClient, regular_user):
         password_data = {
