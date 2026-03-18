@@ -96,10 +96,10 @@ migrated:
 
 
 # Apply migration with docker
-[working-directory: 'src']
+[working-directory: 'deploy']
 [group('docker')]
 migrationd MESSAGE="no message":
-    docker compose exec alembic revision --autogenerate -m '{{MESSAGE}}'
+    docker compose exec app alembic revision --autogenerate -m '{{MESSAGE}}'
 
 
 # Show container logs
