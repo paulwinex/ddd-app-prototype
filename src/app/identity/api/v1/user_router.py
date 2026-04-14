@@ -9,7 +9,6 @@ from app.identity.application.dto.user_dto import (
     UserResponseDTO,
     UserCreateRequestDTO,
     UserUpdateRequestDTO,
-    UserPasswordChangeRequestDTO,
 )
 from app.identity.domain.permissions import UserPermission
 from app.identity.api.permission_dependencies import has_permissions
@@ -83,13 +82,3 @@ async def delete_user(
     await user_command_service.delete_user(user_id)
 
 
-@router.post(
-    "/{user_id}/change-password",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def change_password(
-    user_id: str,
-    request: UserPasswordChangeRequestDTO,
-    user_command_service: UserCommandServiceDEP,
-) -> None:
-    await user_command_service.change_password(user_id, request)

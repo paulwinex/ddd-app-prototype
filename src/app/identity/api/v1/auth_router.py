@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
+from starlette import status
 
 from app.identity.api.auth_schemas import (
     TokenResponseSchema,
@@ -9,7 +10,8 @@ from app.identity.api.auth_schemas import (
     RefreshTokenRequestSchema,
 )
 from app.identity.api.dependencies import AuthServiceDEP, CurrentUserDEP, UserCommandServiceDEP
-from app.identity.application.dto.user_dto import UserResponseDTO
+from app.identity.api.v1.user_router import router
+from app.identity.application.dto.user_dto import UserResponseDTO, UserPasswordChangeRequestDTO
 
 router = APIRouter()
 
@@ -47,3 +49,15 @@ async def reset_password(
 ) -> None:
     # TODO: email integration require
     raise NotImplementedError
+
+
+@router.post(
+    "/{user_id}/change-password",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def change_password(
+    user_id: str,
+    request: UserPasswordChangeRequestDTO,
+    user_command_service: UserCommandServiceDEP,
+) -> None:
+    await user_command_service.change_password(user_id, request)
