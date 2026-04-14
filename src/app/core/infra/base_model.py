@@ -6,9 +6,8 @@ from sqlalchemy import inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import (
     DeclarativeBase,
-    Mapped,
+    Mapped, mapped_column,
 )
-from sqlalchemy.testing.schema import mapped_column
 
 
 class Base(DeclarativeBase):
